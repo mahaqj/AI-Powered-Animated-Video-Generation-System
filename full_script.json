@@ -1,0 +1,85 @@
+{
+  "story": "Maha and Wania are two detectives on the run from Nabeeha and Emaan the police officers after finding a crucial piece of evidence",
+  "scenes": [
+    {
+      "scene_id": "Scene 1",
+      "heading": "On the Run",
+      "action": "Maha and Wania are running down a dark alley",
+      "dialogue": [
+        {
+          "speaker": "Maha",
+          "line": "We need to get out of here, now!"
+        },
+        {
+          "speaker": "Wania",
+          "line": "I know, but where can we go?"
+        }
+      ],
+      "visual_cues": "Dark alley, Maha and Wania running",
+      "tone": "urgent",
+      "duration": 30
+    },
+    {
+      "scene_id": "Scene 2",
+      "heading": "Hiding in Plain Sight",
+      "action": "Maha and Wania are hiding in a crowded market",
+      "dialogue": [
+        {
+          "speaker": "Wania",
+          "line": "I think we lost them"
+        },
+        {
+          "speaker": "Maha",
+          "line": "Don't be so sure, Nabeeha and Emaan are not easy to shake off"
+        }
+      ],
+      "visual_cues": "Crowded market, Maha and Wania hiding behind a stall",
+      "tone": "cautious",
+      "duration": 45
+    },
+    {
+      "scene_id": "Scene 3",
+      "heading": "The Final Confrontation",
+      "action": "Maha and Wania are cornered by Nabeeha and Emaan",
+      "dialogue": [
+        {
+          "speaker": "Nabeeha",
+          "line": "You're not taking anything else from us"
+        },
+        {
+          "speaker": "Maha",
+          "line": "We're just trying to uncover the truth"
+        }
+      ],
+      "visual_cues": "Abandoned warehouse, Maha and Wania cornered by Nabeeha and Emaan",
+      "tone": "intense",
+      "duration": 60
+    }
+  ],
+  "characters": [
+    {
+      "name": "Maha",
+      "role": "protagonist",
+      "voice_personality": "determined and strong",
+      "appearance": "Maha has short brown hair."
+    },
+    {
+      "name": "Wania",
+      "role": "supporting",
+      "voice_personality": "cautious and soft",
+      "appearance": "Wania has long blonde hair."
+    },
+    {
+      "name": "Nabeeha",
+      "role": "antagonist",
+      "voice_personality": "firm and commanding",
+      "appearance": "Nabeeha has piercing green eyes."
+    },
+    {
+      "name": "Emaan",
+      "role": "antagonist",
+      "voice_personality": "cold and calculating",
+      "appearance": "Emaan has a tall muscular build."
+    }
+  ]
+}
