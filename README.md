@@ -42,7 +42,10 @@ python -m venv agenticproj
 # 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Run the app
+# 4. Set your Groq API key
+$env:GROQ_API_KEY = "your-api-key-here"
+
+# 5. Run the app
 python app.py
 ```
 
