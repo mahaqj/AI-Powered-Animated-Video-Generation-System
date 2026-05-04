@@ -1,13 +1,21 @@
+import sys
+from pathlib import Path
+
+# Add parent directory to path for imports from config/
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from langgraph.graph import StateGraph, END, START
-from state import AgenticState
+from config.state import AgenticState
 from agents import (
     scriptwriter_node, 
     validator_node, 
     hitl_node, 
     character_designer_node, 
-    image_synth_node, 
     assemble_fullscript_node,
-    memory_commit_node
+    memory_commit_node,
+    audio_synthesizer_node,
+    bgm_selector_node,
+    audio_assembler_node,
 )
 
 def build_graph():
@@ -18,7 +26,11 @@ def build_graph():
     graph_builder.add_node("validator", validator_node)
     graph_builder.add_node("hitl", hitl_node)
     graph_builder.add_node("character_designer", character_designer_node)
-    graph_builder.add_node("image_synth", image_synth_node)
+    # Phase 2: Audio Nodes
+    graph_builder.add_node("audio_synthesizer", audio_synthesizer_node)
+    graph_builder.add_node("bgm_selector", bgm_selector_node)
+    graph_builder.add_node("audio_assembler", audio_assembler_node)
+    # Phase 1: Finalization
     graph_builder.add_node("assembler", assemble_fullscript_node)
     graph_builder.add_node("memory_commit", memory_commit_node)
 
@@ -47,8 +59,14 @@ def build_graph():
     graph_builder.add_edge("scriptwriter", "validator")
     graph_builder.add_conditional_edges("validator", validation_router)
     graph_builder.add_conditional_edges("hitl", hitl_router)
-    graph_builder.add_edge("character_designer", "image_synth")
-    graph_builder.add_edge("image_synth", "assembler")
+    # Phase 2: Audio synthesis (parallel nodes) - skip image_synth
+    graph_builder.add_edge("character_designer", "audio_synthesizer")
+    graph_builder.add_edge("character_designer", "bgm_selector")
+    # Converge audio nodes
+    graph_builder.add_edge("audio_synthesizer", "audio_assembler")
+    graph_builder.add_edge("bgm_selector", "audio_assembler")
+    # Continue to finalization
+    graph_builder.add_edge("audio_assembler", "assembler")
     graph_builder.add_edge("assembler", "memory_commit")
     graph_builder.add_edge("memory_commit", END)
 

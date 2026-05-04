@@ -1,25 +1,73 @@
+# Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 .Python
 env/
 venv/
 .venv/
-agentica3/
+agenticproj/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environment variables
 .env
 .env.*
+
+# Project data directories
+output/
+logs/
 chroma_db/
-character_db.json
-scene_manifest.json
+.voice_cache/
+
+# Audio and media files
+*.mp3
+*.wav
+*.m4a
+*.aac
+
+# Generated images
 images/
-audio_tracks/
-raw_frames/
-raw_scenes/
-scene_backgrounds/
-stock_footage/
-docs/*.pdf
-pdf_output.txt
+*.png
+*.jpg
+*.jpeg
+
+# Generated manifests
+*_manifest.json
+character_db.json
+
+# Database files
 *.sqlite3
 *.db
-agenticproj/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node/npm (if adding frontend later)
+node_modules/
+package-lock.json
+yarn.lock
+

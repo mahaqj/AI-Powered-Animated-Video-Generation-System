@@ -1,9 +1,19 @@
-chromadb==1.5.6
-gTTS==2.5.4
+# Core LLM and Workflow Framework
 langchain-core==1.2.27
 langchain-groq==1.1.2
 langgraph==1.1.6
-numpy==2.2.6
-opencv-python==4.13.0.92
-pydantic==2.12.5
+
+# Schema Validation
+pydantic==2.13.3
+
+# Text-to-Speech (gTTS)
+gTTS==2.5.4
+
+# Audio Processing (pydub)
 pydub==0.25.1
+
+# Vector Database for Memory
+chromadb==1.5.8
+
+# Environment Variables
+python-dotenv==1.0.0

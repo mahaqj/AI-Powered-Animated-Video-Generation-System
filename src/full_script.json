@@ -57,19 +57,19 @@
       "name": "ARIA",
       "role": "protagonist",
       "voice_personality": "Brave and determined",
-      "appearance": "A young woman with a strong jawline and piercing eyes."
+      "appearance": "Aria stands with a brave demeanor, gripping her equipment tightly."
     },
     {
       "name": "EMILIA",
       "role": "supporting",
-      "voice_personality": "Calm and collected",
-      "appearance": "A woman with a professional attire and a serious expression."
+      "voice_personality": "Cautious and alert",
+      "appearance": "Emilia has a cautious look on her face as she walks through the dark hallway."
     },
     {
       "name": "ELIZABETH",
       "role": "antagonist",
-      "voice_personality": "Mysterious and eerie",
-      "appearance": "A ghostly figure with a resemblance to ARIA and a haunting gaze."
+      "voice_personality": "Ghostly and ominous",
+      "appearance": "Elizabeth is a ghostly figure with a resemblance to Aria, dressed in old attire."
     }
   ]
 }

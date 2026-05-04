@@ -3,6 +3,14 @@ import json
 import os
 from memory import memory_db
 
+# Phase 2: Import audio tools to register them
+try:
+    import audio_tools as _audio_tools_module
+    # Manually register audio tools in __MCP_TOOL_REGISTRY__
+    # (audio_tools.py uses @tool decorator; we need to make them available for discovery)
+except ImportError as e:
+    print(f"[WARNING] audio_tools not found; audio synthesis will be unavailable: {e}")
+
 # Simulate MCP Tool Discovery via a registry
 __MCP_TOOL_REGISTRY__ = {}
 
@@ -14,7 +22,22 @@ def mcp_tool(func):
 
 def discover_tools():
     """Agents query this dynamically to get tools."""
-    return list(__MCP_TOOL_REGISTRY__.values())
+    # Include both MCP tools and audio tools
+    tools = list(__MCP_TOOL_REGISTRY__.values())
+    try:
+        # Add audio tools from the imported module
+        audio_tools_list = [
+            _audio_tools_module.synthesize_dialogue,
+            _audio_tools_module.select_bgm_track,
+            _audio_tools_module.download_bgm_track,
+            _audio_tools_module.assemble_audio_segments,
+            _audio_tools_module.cache_character_voice,
+            _audio_tools_module.get_cached_voice,
+        ]
+        tools.extend(audio_tools_list)
+    except (AttributeError, NameError, TypeError):
+        pass  # Audio tools not available
+    return tools
 
 @mcp_tool
 def commit_character_memory(name: str, traits: str, appearance: str, image_path: str = "") -> str:
