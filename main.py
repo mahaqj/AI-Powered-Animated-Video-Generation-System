@@ -1,47 +1,36 @@
-#!/usr/bin/env python3
-"""
-AI-Powered Animated Video Generation System
-
-Entry point for the agentic video generation pipeline.
-"""
-
 import sys
-from pathlib import Path
+import os
+from datetime import datetime
+from src.app import run_workflow
 
-# Add src directory to path
-sys.path.insert(0, str(Path(__file__).parent / "src"))
-
-from app import run_workflow
+def main():
+    print("Welcome to The Writer's Room!")
+    
+    # 1. Select Mode
+    mode = input("Enter mode (auto/manual): ").strip().lower()
+    if mode not in ["auto", "manual"]:
+        mode = "auto"
+        
+    # 2. Generate timestamped run directory
+    # Format: 6MAY-214AM-RUN
+    timestamp = datetime.now().strftime("%-d%b-%-I%M%p").upper()
+    run_dir = f"outputs/{timestamp}-RUN"
+    os.makedirs(run_dir, exist_ok=True)
+    
+    print(f"All outputs for this session will be stored in: {run_dir}")
+    
+    # 3. Get Input
+    if mode == "auto":
+        prompt = input("Enter story prompt: ").strip()
+        run_workflow(mode, prompt, run_dir)
+    else:
+        # Manual mode expects manual_script.json in root
+        if os.path.exists("manual_script.json"):
+            with open("manual_script.json", "r") as f:
+                script_content = f.read()
+            run_workflow(mode, script_content, run_dir)
+        else:
+            print("Error: manual_script.json not found in root directory.")
 
 if __name__ == "__main__":
-    print("Welcome to The Writer's Room!")
-    mode = input("Enter mode (auto/manual): ").strip().lower()
-    
-    if mode == "auto":
-        prompt = input("Enter story prompt: ")
-        run_workflow("auto", prompt)
-    elif mode == "manual":
-        # Load script from manual_script.json
-        manual_script_path = Path(__file__).parent / "manual_script.json"
-        print(f"For manual mode, we will try to load '{manual_script_path.name}'.")
-        if manual_script_path.exists():
-            with open(manual_script_path, "r") as f:
-                script_data = f.read()
-            run_workflow("manual", script_data)
-        else:
-            print(f"{manual_script_path.name} not found! Creating an example one...")
-            import json
-            example_script = [
-                {
-                    "scene_id": "1",
-                    "heading": "EXT. CYBERPUNK ALLEY - NIGHT",
-                    "action": "A dark figure steps from the shadows.",
-                    "dialogue": [{"speaker": "CYBORG", "line": "You're late."}],
-                    "visual_cues": "Neon reflections in puddles."
-                }
-            ]
-            with open(manual_script_path, "w") as f:
-                json.dump(example_script, f, indent=4)
-            print(f"Created example '{manual_script_path.name}'. Please configure it and run again.")
-    else:
-        print("Invalid mode. Exiting.")
+    main()

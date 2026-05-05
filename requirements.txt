@@ -3,8 +3,21 @@ langchain-core==1.2.27
 langchain-groq==1.1.2
 langgraph==1.1.6
 
-# Schema Validation
+# Schema Validation & Settings
 pydantic==2.13.3
+pydantic-settings==2.7.1
+
+# HTTP & APIs
+httpx==0.28.1
+requests==2.33.1
+
+# Web Framework
+fastapi==0.115.6
+uvicorn==0.34.0
+
+# Async File & DB
+aiofiles==24.1.0
+aiosqlite==0.20.0
 
 # Text-to-Speech (gTTS)
 gTTS==2.5.4
@@ -17,3 +30,10 @@ chromadb==1.5.8
 
 # Environment Variables
 python-dotenv==1.0.0
+
+# Multimedia Dependencies
+imageio-ffmpeg==0.6.0
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.25.1

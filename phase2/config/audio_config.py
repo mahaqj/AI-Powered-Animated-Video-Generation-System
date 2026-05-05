@@ -1,7 +1,5 @@
 """
-Audio Configuration for Phase 2: Audio Generation & Integration
-
-Uses gTTS (Google Text-to-Speech) for TTS synthesis and pydub for audio assembly.
+Phase 2 Configuration: Audio Generation & TTS Settings
 """
 
 # ==============================================================================
@@ -44,6 +42,23 @@ DEFAULT_VOICE_PARAMS = {
 }
 
 # ==============================================================================
+# Scene Tone Metadata (for future BGM integration)
+# ==============================================================================
+# Note: BGM download is currently not fully implemented.
+# This mapping is for future use when BGM library is integrated.
+
+SCENE_TONE_METADATA = {
+    "urgent": "Fast-paced, high-energy tension track",
+    "mysterious": "Dark, suspenseful atmosphere",
+    "calm": "Peaceful, ambient background",
+    "dramatic": "Epic, cinematic orchestral score",
+    "romantic": "Soft, emotional music",
+    "comedic": "Upbeat, playful music",
+    "action": "High-energy action track",
+    "default": "Neutral ambient background",
+}
+
+# ==============================================================================
 # Audio Output Settings
 # ==============================================================================
 
@@ -53,6 +68,7 @@ AUDIO_OUTPUT_CONFIG = {
     "output_directory": "output/audio",  # Where to save all audio files (TTS + assembled)
     "bgm_directory": "output/bgm_library",  # BGM cache directory (for future use)
     "dialogue_volume_db": -3,  # Dialogue level for mixing
+    "bgm_volume_db": -15,  # BGM level for mixing
 }
 
 # ==============================================================================
@@ -61,9 +77,8 @@ AUDIO_OUTPUT_CONFIG = {
 
 CACHING_CONFIG = {
     "enable_voice_cache": True,
-    "cache_directory": ".voice_cache",  # Local directory for embeddings
+    "cache_directory": "output/.voice_cache",  # Voice cache directory
     "cache_ttl_hours": 24 * 7,  # Refresh cache every 7 days
-    "bgm_cache_ttl_hours": 24 * 30,  # BGM tracks cached for 30 days
 }
 
 # ==============================================================================
