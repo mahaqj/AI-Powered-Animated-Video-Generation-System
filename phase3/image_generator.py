@@ -16,22 +16,26 @@ class ImageGenerationError(Exception):
     """Custom exception for all image generation failures"""
     pass
 
+# User's "Secret Sauce" Style Prefix
+STYLE_PREFIX = "3D animated character portrait, pixar style, high quality, vibrant colors, stylized character, unreal engine 5, "
+
 MOOD_STYLE_MAP: Dict[str, str] = {
-    "happy":       "warm golden lighting, vibrant colors, cheerful atmosphere, photorealistic",
-    "sad":         "muted desaturated tones, soft overcast light, melancholic atmosphere",
-    "dark":        "dark dramatic lighting, deep shadows, cinematic noir, high contrast",
-    "epic":        "dramatic wide angle lens, golden hour light, epic cinematic scale",
-    "mysterious":  "foggy atmosphere, cool blue tones, mysterious diffused shadows",
-    "neutral":     "natural soft lighting, balanced composition, photorealistic",
-    "angry":       "harsh red-orange lighting, high contrast, intense atmosphere",
-    "romantic":    "warm pink-gold bokeh, soft focus, dreamy atmosphere",
+    "happy":       "warm golden lighting, cheerful atmosphere",
+    "sad":         "muted desaturated tones, melancholic atmosphere",
+    "dark":        "dark dramatic lighting, deep shadows, cinematic noir",
+    "epic":        "dramatic wide angle lens, epic cinematic scale",
+    "mysterious":  "foggy atmosphere, mysterious diffused shadows",
+    "neutral":     "natural soft lighting, balanced composition",
+    "angry":       "harsh red-orange lighting, intense atmosphere",
+    "romantic":    "warm pink-gold bokeh, dreamy atmosphere",
 }
 
-DEFAULT_STYLE = "natural lighting, cinematic composition, photorealistic"
+DEFAULT_STYLE = "natural lighting, cinematic composition"
 
 def build_image_prompt(scene: SceneDef, characters: List[CharacterDef]) -> str:
-    """Start with scene.visual_prompt, add character descriptions and mood style."""
-    prompt = scene.visual_prompt
+    """Start with STYLE_PREFIX, then scene.visual_prompt, then character descriptions and mood style."""
+    prompt = STYLE_PREFIX
+    prompt += scene.visual_prompt
     
     # Find characters mentioned in scene dialogue
     mentioned_ids = {d.character_id for d in scene.dialogue}
@@ -45,31 +49,27 @@ def build_image_prompt(scene: SceneDef, characters: List[CharacterDef]) -> str:
     prompt += f", {style}"
     
     # Append global quality tokens
-    prompt += ", highly detailed, 4k, sharp focus"
+    prompt += ", highly detailed, sharp focus"
     
-    # Truncate to 400 characters, breaking at last space
-    if len(prompt) > 400:
-        truncated = prompt[:400]
-        last_space = truncated.rfind(" ")
-        if last_space != -1:
-            prompt = truncated[:last_space]
-        else:
-            prompt = truncated
-            
-    return prompt
+    # Truncate to 1000 characters (Pollinations handles long prompts well)
+    return prompt[:1000]
 
 async def generate_scene_image(scene: SceneDef, characters: List[CharacterDef], output_dir: Path, seed: int | None = None, retries: int = 5) -> Path:
     """Enrich prompt and download image from Pollinations.ai with retry logic."""
     prompt = build_image_prompt(scene, characters)
     encoded_prompt = urllib.parse.quote(prompt, safe="")
     
-    url = f"{settings.POLLINATIONS_IMAGE_URL}/{encoded_prompt}"
+    # User's requested URL structure
+    url = f"{settings.POLLINATIONS_IMAGE_URL}{encoded_prompt}"
     params = {
-        "width": settings.IMAGE_WIDTH,
-        "height": settings.IMAGE_HEIGHT,
-        "model": settings.POLLINATIONS_MODEL,
-        "nologo": "true"
+        "nologo": "true",
+        "private": "true"
     }
+    # Optional width/height if set in settings, but defaults to square if not provided
+    if settings.IMAGE_WIDTH and settings.IMAGE_HEIGHT:
+        params["width"] = settings.IMAGE_WIDTH
+        params["height"] = settings.IMAGE_HEIGHT
+        
     if seed is not None:
         params["seed"] = seed
         
@@ -94,8 +94,8 @@ async def generate_scene_image(scene: SceneDef, characters: List[CharacterDef], 
             last_error = e
             status_code = getattr(e.response, 'status_code', 0) if hasattr(e, 'response') else 0
             if status_code == 429 or isinstance(e, httpx.RequestError):
-                wait_time = (attempt + 1) * 10 # More aggressive backoff: 10, 20, 30, 40, 50s
-                logger.warning(f"[ImageGen] Rate limited or connection issue for scene {scene.scene_id}. Retrying in {wait_time}s... ({e})")
+                wait_time = (attempt + 1) * 10
+                logger.warning(f"[ImageGen] Issue for scene {scene.scene_id}. Retrying in {wait_time}s... ({e})")
                 await asyncio.sleep(wait_time)
             else:
                 logger.error(f"[ImageGen Error] HTTP error {status_code} for scene {scene.scene_id}")

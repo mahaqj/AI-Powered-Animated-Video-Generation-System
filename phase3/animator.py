@@ -109,20 +109,33 @@ async def animate_all_scenes(scene_image_map: Dict[str, Path], scenes: List[Scen
     return {sid: path for sid, path in zip(scene_ids, results)}
 
 async def merge_audio_video(clip_path: Path, scene_manifest: SceneAudioManifest, output_dir: Path) -> Path:
-    """Merge animated clip with scene audio."""
+    """Merge animated clip with scene audio (Dialogue + BGM)."""
     output_path = output_dir / f"{scene_manifest.scene_id}_synced.mp4"
     
-    args = [
-        "-i", str(clip_path),
-        "-i", str(scene_manifest.audio_file),
-        "-c:v", "copy",
-        "-c:a", "aac",
-        "-shortest",
-        str(output_path), "-y"
-    ]
+    # If per-scene BGM is present, mix it in
+    if scene_manifest.bgm_file and Path(scene_manifest.bgm_file).exists():
+        args = [
+            "-i", str(clip_path),
+            "-i", str(scene_manifest.audio_file),
+            "-i", str(scene_manifest.bgm_file),
+            "-filter_complex", "[1:a][2:a]amix=inputs=2:duration=first[aout]",
+            "-map", "0:v", "-map", "[aout]",
+            "-c:v", "copy", "-c:a", "aac",
+            "-shortest",
+            str(output_path), "-y"
+        ]
+    else:
+        args = [
+            "-i", str(clip_path),
+            "-i", str(scene_manifest.audio_file),
+            "-c:v", "copy",
+            "-c:a", "aac",
+            "-shortest",
+            str(output_path), "-y"
+        ]
     
     await _run_ffmpeg(args, AudioSyncError)
-    logger.info(f"[Animator] Audio synced for scene {scene_manifest.scene_id}")
+    logger.info(f"[Animator] Audio synced for scene {scene_manifest.scene_id} (BGM: {bool(scene_manifest.bgm_file)})")
     return output_path
 
 async def sync_all_scenes(animated_clips: Dict[str, Path], scene_image_map: Dict[str, Path], timing_manifest: TimingManifest, scenes: List[SceneDef], output_dir: Path) -> List[GeneratedScene]:
@@ -141,7 +154,6 @@ async def sync_all_scenes(animated_clips: Dict[str, Path], scene_image_map: Dict
             
         synced_path = await merge_audio_video(clip_path, scene_manifest, output_dir)
         
-        # USE ACTUAL AUDIO DURATION FOR CONCATENATION OFFSET LATER
         actual_duration = scene_manifest.end_ms / 1000.0
         
         generated = GeneratedScene(
@@ -150,7 +162,8 @@ async def sync_all_scenes(animated_clips: Dict[str, Path], scene_image_map: Dict
             image_path=scene_image_map[scene.scene_id],
             clip_path=synced_path,
             duration_seconds=actual_duration,
-            audio_path=Path(scene_manifest.audio_file)
+            audio_path=Path(scene_manifest.audio_file),
+            bgm_path=Path(scene_manifest.bgm_file) if scene_manifest.bgm_file else None
         )
         results.append(generated)
         

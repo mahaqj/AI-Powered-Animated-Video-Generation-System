@@ -15,6 +15,7 @@ class SceneAudioManifest(BaseModel):
     start_ms: int
     end_ms: int
     dialogue_segments: List[DialogueSegment]
+    bgm_file: Optional[str] = None # Added for per-scene BGM support
 
 class BackgroundMusic(BaseModel):
     audio_file: str
@@ -73,6 +74,7 @@ class GeneratedScene(BaseModel):
     clip_path: Path
     duration_seconds: float
     audio_path: Path
+    bgm_path: Optional[Path] = None # Added for persistence
 
 class Phase3Output(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)

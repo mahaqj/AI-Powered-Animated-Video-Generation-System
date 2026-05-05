@@ -7,11 +7,11 @@ import shutil
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     
-    OUTPUT_DIR: str = "outputs/6MAY-210AM-RUN"
-    POLLINATIONS_IMAGE_URL: str = "https://image.pollinations.ai/prompt"
+    OUTPUT_DIR: str = "outputs/6MAY-352AM-RUN"
+    POLLINATIONS_IMAGE_URL: str = "https://image.pollinations.ai/prompt/"
     POLLINATIONS_MODEL: str = "flux"
-    IMAGE_WIDTH: int = 1280
-    IMAGE_HEIGHT: int = 720
+    IMAGE_WIDTH: int = 1024
+    IMAGE_HEIGHT: int = 1024
     VIDEO_FPS: int = 24
     FFMPEG_PATH: str = "ffmpeg"
     LOG_LEVEL: str = "INFO"

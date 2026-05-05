@@ -45,7 +45,7 @@ async def _video_generator_node_async(state: AgenticState) -> Dict[str, Any]:
         title=state.get("story", "Untitled Story"),
         genre="Action", 
         tone="Dynamic",
-        total_duration_seconds=sum(s.duration or 10 for s in state["scene_manifest"])
+        total_duration_seconds=sum(s.duration or 10 for s in state.get("scene_manifest", []))
     )
     
     characters = []
@@ -60,7 +60,7 @@ async def _video_generator_node_async(state: AgenticState) -> Dict[str, Any]:
         ))
         
     scenes = []
-    for s in state["scene_manifest"]:
+    for s in state.get("scene_manifest", []):
         dialogue = []
         for d in s.dialogue:
             dialogue.append(DialogueLine(
@@ -87,7 +87,7 @@ async def _video_generator_node_async(state: AgenticState) -> Dict[str, Any]:
     
     # 2. Map TimingManifest
     p3_scenes = []
-    bgm = None
+    bgm_manifest = state.get("bgm_manifest", {})
     
     timing_manifest_data = state.get("timing_manifest", {})
     for scene_id, entry in timing_manifest_data.items():
@@ -105,15 +105,13 @@ async def _video_generator_node_async(state: AgenticState) -> Dict[str, Any]:
             audio_file=entry.audio_file,
             start_ms=0,
             end_ms=entry.duration_ms,
-            dialogue_segments=segments
+            dialogue_segments=segments,
+            bgm_file=bgm_manifest.get(scene_id) # Support per-scene BGM
         ))
-        
-        if scene_id in state.get("bgm_manifest", {}):
-            bgm = BackgroundMusic(audio_file=state["bgm_manifest"][scene_id], volume=0.3)
 
     timing_manifest = TimingManifest(
         scenes=p3_scenes,
-        background_music=bgm
+        background_music=None # Using per-scene BGM instead
     )
     
     # 3. Run Pipeline
