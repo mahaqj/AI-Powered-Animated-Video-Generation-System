@@ -2,6 +2,16 @@
 
 AI4015-Agentic Artificial Intelligence Course Project
 
+How to Launch
+Start Backend:
+bash
+source venv/bin/activate
+python -m uvicorn phase4.backend.main:app --host 0.0.0.0 --port 8002 --reload
+Start Frontend:
+bash
+cd phase4/frontend
+npm run dev
+
 ## Overview
 
 A multi-phase agentic AI system for generating complete animated video content from natural language prompts. The system orchestrates multiple specialized agents to handle scriptwriting, character design, audio synthesis, and video composition.

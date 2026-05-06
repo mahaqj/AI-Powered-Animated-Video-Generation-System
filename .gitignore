@@ -31,9 +31,11 @@ wheels/
 
 # Project data directories
 output/
+outputs/
 logs/
 chroma_db/
 .voice_cache/
+scratch/
 
 # Audio and media files
 *.mp3

@@ -74,6 +74,12 @@ def validator_node(state: AgenticState) -> dict:
 def hitl_node(state: AgenticState) -> dict:
     """Checkpoint: pauses execution and waits for real human approval."""
     print("\n--- ACT: Human-in-the-Loop Checkpoint ---")
+    
+    # If already approved (e.g. via API mode), skip the interactive prompt
+    if state.get("hitl_approved"):
+        print("Pre-approved via API mode. Skipping interactive prompt.")
+        return {"hitl_approved": True}
+
     print("=" * 50)
     print("SCRIPT PREVIEW FOR REVIEW:")
     manifest = state.get("scene_manifest", [])
@@ -86,15 +92,19 @@ def hitl_node(state: AgenticState) -> dict:
     print("=" * 50)
 
     while True:
-        user_input = input("Do you approve this script to continue? (yes/no): ").strip().lower()
-        if user_input == 'yes':
-            print("Script approved. Continuing pipeline...")
-            return {"hitl_approved": True}
-        elif user_input == 'no':
-            print("Script rejected. Terminating.")
+        try:
+            user_input = input("Do you approve this script to continue? (yes/no): ").strip().lower()
+            if user_input == 'yes':
+                print("Script approved. Continuing pipeline...")
+                return {"hitl_approved": True}
+            elif user_input == 'no':
+                print("Script rejected. Terminating.")
+                return {"hitl_approved": False}
+            else:
+                print("Please enter 'yes' or 'no'.")
+        except (EOFError, OSError):
+            print("No interactive terminal found. Defaulting to rejection unless pre-approved.")
             return {"hitl_approved": False}
-        else:
-            print("Please enter 'yes' or 'no'.")
 
 def character_designer_node(state: AgenticState) -> dict:
     """Extracts character visual descriptions using Groq."""

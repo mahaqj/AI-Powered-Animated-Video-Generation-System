@@ -1,0 +1,162 @@
+/* ============================================================
+   AnimAI — Bubblegum Rave Design System  (Enhanced v2)
+   ============================================================ */
+
+/* ── Google Font imports are in index.html ── */
+
+/* ── CSS Variables ── */
+:root {
+  --bg:         #080810;
+  --surface:    #10101e;
+  --surface2:   #16162a;
+  --acid:       #c8ff00;
+  --bubblegum:  #ff2d9b;
+  --sky:        #00e5ff;
+  --mango:      #ff9500;
+  --grape:      #7b2fff;
+  --snow:       #f0f0f0;
+  --ink:        #080810;
+  --glass:      rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+
+  --font-display: 'Boogaloo', cursive;
+  --font-body:    'Space Mono', monospace;
+  --font-ticker:  'VT323', monospace;
+
+  --shadow-acid:  0 0 24px rgba(200,255,0,0.18);
+  --shadow-grape: 0 0 24px rgba(123,47,255,0.25);
+  --shadow-pink:  0 0 24px rgba(255,45,155,0.25);
+  --radius:       12px;
+}
+
+/* ── Global Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(123,47,255,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 90%, rgba(255,45,155,0.08) 0%, transparent 50%);
+  color: var(--snow);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Custom Scrollbar ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--grape); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--acid); }
+
+/* ── Keyframes ── */
+@keyframes wobble {
+  0%, 100% { transform: rotate(0deg); }
+  25%       { transform: rotate(-1.5deg) scale(1.01); }
+  75%       { transform: rotate(1.5deg) scale(1.01); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+@keyframes pop-scale {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.1); }
+  70%  { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+
+@keyframes blink-cursor {
+  0%, 100% { border-right-color: var(--acid); }
+  50%       { border-right-color: transparent; }
+}
+
+@keyframes float-up {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-130px) scale(1.5); }
+}
+
+@keyframes curtain-wipe {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0% 0 0); }
+}
+
+@keyframes pulse {
+  0%   { opacity: 1; box-shadow: 0 0 0 0 rgba(200,255,0,0.4); }
+  100% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(200,255,0,0); }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(120%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glow-pulse {
+  0%   { text-shadow: 0 0 8px var(--acid),  0 0 20px rgba(200,255,0,0.4); }
+  50%  { text-shadow: 0 0 16px var(--acid), 0 0 40px rgba(200,255,0,0.6); }
+  100% { text-shadow: 0 0 8px var(--acid),  0 0 20px rgba(200,255,0,0.4); }
+}
+
+@keyframes scan-line {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes border-dance {
+  0%   { border-color: var(--grape); }
+  33%  { border-color: var(--bubblegum); }
+  66%  { border-color: var(--sky); }
+  100% { border-color: var(--grape); }
+}
+
+/* ── Utility Classes ── */
+.fade-up  { animation: fade-up 0.5s ease forwards; }
+.glass    {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+}
+
+.shimmer-text {
+  background: linear-gradient(90deg, var(--acid) 0%, var(--sky) 30%, var(--bubblegum) 60%, var(--acid) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+
+a { color: var(--acid); text-decoration: none; }
+button { cursor: pointer; font-family: inherit; }
+
+/* ── Scanline overlay effect ── */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
