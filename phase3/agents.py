@@ -120,7 +120,8 @@ async def _video_generator_node_async(state: AgenticState) -> Dict[str, Any]:
         output = await pipeline.run(pipeline_input, timing_manifest, add_subtitles=True, run_dir=run_dir)
         return {
             "phase3_output": output,
-            "final_video_path": str(output.final_video_path)
+            "final_video_path": str(output.final_video_path),
+            "final_video_error": None,
         }
     except Exception as e:
         logger.error(f"[Phase 3 Error] Video generation failed: {e}")
@@ -128,5 +129,6 @@ async def _video_generator_node_async(state: AgenticState) -> Dict[str, Any]:
         traceback.print_exc()
         return {
             "phase3_output": None,
-            "final_video_path": None
+            "final_video_path": None,
+            "final_video_error": str(e),
         }

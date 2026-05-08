@@ -4,7 +4,7 @@ langchain-groq==1.1.2
 langgraph==1.1.6
 
 # Schema Validation & Settings
-pydantic==2.13.3
+pydantic>=2.7.4,<3
 pydantic-settings==2.7.1
 
 # HTTP & APIs

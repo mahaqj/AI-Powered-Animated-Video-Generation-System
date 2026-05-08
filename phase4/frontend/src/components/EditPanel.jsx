@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import PropTypes from 'prop-types'
 
 const CHIPS = [
   "Change voice tone",
@@ -8,7 +9,7 @@ const CHIPS = [
   "Speed up scene 2",
 ]
 
-export default function EditPanel({ runId }) {
+export default function EditPanel({ runId, onEdited, addToast }) {
   const [open, setOpen]     = useState(false)
   const [text, setText]     = useState('')
   const [sending, setSend]  = useState(false)
@@ -17,12 +18,25 @@ export default function EditPanel({ runId }) {
     if (!text.trim() || !runId) return
     setSend(true)
     try {
-      await fetch('/api/phase5/edit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ run_id: runId, command: text }),
-      })
-    } catch {/* Phase 5 stub — ignore errors */}
+      const { applyEdit } = await import('../api/client')
+      console.log('[EditPanel] Sending edit:', { run_id: runId, edit_text: text })
+      const res = await applyEdit(runId, text)
+      console.log('[EditPanel] Edit response:', res)
+      
+      if (res?.version) {
+        addToast?.(`Edit saved! Version ${res.version} ✨`, 'success')
+        console.log('[EditPanel] Calling onEdited callback...')
+        if (onEdited) {
+          await onEdited(res)
+          console.log('[EditPanel] onEdited callback completed')
+        }
+      } else {
+        throw new Error('No version in response')
+      }
+    } catch (err) {
+      console.error('[EditPanel] Edit failed:', err)
+      addToast?.(`Edit failed: ${err.message}`, 'error')
+    }
     setSend(false)
     setText('')
   }
@@ -137,4 +151,10 @@ export default function EditPanel({ runId }) {
       </AnimatePresence>
     </section>
   )
+}
+
+EditPanel.propTypes = {
+  runId: PropTypes.string,
+  onEdited: PropTypes.func,
+  addToast: PropTypes.func,
 }

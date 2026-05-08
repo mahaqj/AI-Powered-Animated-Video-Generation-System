@@ -28,6 +28,15 @@ class StateManager:
         """)
         await db.commit()
 
+    async def clear_all(self):
+        """Clear all snapshots (used when starting a new pipeline run)."""
+        async with aiosqlite.connect(self.db_path) as db:
+            await self._ensure_table(db)
+            await db.execute("DELETE FROM snapshots")
+            await db.execute("DELETE FROM sqlite_sequence WHERE name = 'snapshots'")
+            await db.commit()
+            logger.info("[StateManager] All snapshots cleared for new run")
+
     async def snapshot(self, state: Phase3Output) -> int:
         """Save a new state snapshot and return the version number."""
         async with aiosqlite.connect(self.db_path) as db:
@@ -39,12 +48,15 @@ class StateManager:
             asset_paths = [str(scene.image_path) for scene in state.generated_scenes]
             asset_paths += [str(scene.clip_path) for scene in state.generated_scenes]
             asset_paths.append(str(state.final_video_path))
+
+            cursor = await db.execute("SELECT COALESCE(MAX(version), 0) + 1 AS next_version FROM snapshots")
+            row = await cursor.fetchone()
+            version = int(row[0]) if row and row[0] is not None else 1
             
-            cursor = await db.execute(
-                "INSERT INTO snapshots (created_at, state_json, asset_paths) VALUES (?, ?, ?)",
-                (datetime.utcnow().isoformat(), state_json, json.dumps(asset_paths))
+            await db.execute(
+                "INSERT INTO snapshots (version, created_at, state_json, asset_paths) VALUES (?, ?, ?, ?)",
+                (version, datetime.utcnow().isoformat(), state_json, json.dumps(asset_paths))
             )
-            version = cursor.lastrowid
             await db.commit()
             
             logger.info(f"[StateManager] Snapshot saved as version {version}")
@@ -65,13 +77,28 @@ class StateManager:
             return state
 
     async def history(self) -> List[Dict[str, Any]]:
-        """List all snapshots with metadata."""
+        """List all snapshots with metadata, including scene count."""
         async with aiosqlite.connect(self.db_path) as db:
             db.row_factory = aiosqlite.Row
-            cursor = await db.execute("SELECT version, created_at, asset_paths FROM snapshots ORDER BY version DESC")
+            cursor = await db.execute("SELECT version, created_at, state_json FROM snapshots ORDER BY version DESC")
             rows = await cursor.fetchall()
             
-            return [dict(row) for row in rows]
+            results = []
+            for row in rows:
+                try:
+                    state = Phase3Output.model_validate_json(row["state_json"])
+                    scene_count = len(state.generated_scenes)
+                except Exception as e:
+                    logger.warning(f"Failed to parse state for version {row['version']}: {e}")
+                    scene_count = 0
+                
+                results.append({
+                    "version": row["version"],
+                    "created_at": row["created_at"],
+                    "scene_count": scene_count
+                })
+            
+            return results
 
     async def latest(self) -> Optional[Phase3Output]:
         """Get the most recent snapshot."""

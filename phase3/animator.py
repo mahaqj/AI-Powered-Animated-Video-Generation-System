@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import enum
+import subprocess
 from pathlib import Path
 from typing import Dict, List, Optional
 from .schemas import SceneDef, TimingManifest, GeneratedScene, SceneAudioManifest
@@ -38,18 +39,17 @@ class KenBurnsEffect(str, enum.Enum):
         return mood_map.get(mood.lower(), cls.ZOOM_IN)
 
 async def _run_ffmpeg(args: List[str], error_class=Exception) -> None:
-    """Private helper to run FFmpeg async."""
-    logger.debug(f"Running FFmpeg: {settings.FFMPEG_PATH} {' '.join(map(str, args))}")
-    proc = await asyncio.create_subprocess_exec(
-        settings.FFMPEG_PATH,
-        *map(str, args),
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
-    )
-    stdout, stderr = await proc.communicate()
-    
+    """Run FFmpeg in a worker thread to avoid Windows event-loop subprocess limitations."""
+    cmd = [str(settings.FFMPEG_PATH), *map(str, args)]
+    logger.debug(f"Running FFmpeg: {' '.join(cmd)}")
+
+    def _exec() -> subprocess.CompletedProcess:
+        return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+
+    proc = await asyncio.to_thread(_exec)
+
     if proc.returncode != 0:
-        error_msg = stderr.decode().strip()
+        error_msg = proc.stderr.decode(errors="replace").strip()
         logger.error(f"FFmpeg error: {error_msg}")
         raise error_class(f"FFmpeg failed: {error_msg}")
 

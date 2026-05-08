@@ -21,7 +21,9 @@ _run_store: dict[str, dict] = {}
 
 def _make_run_dir() -> str:
     """Generate a timestamped run directory name."""
-    return datetime.now().strftime("%-d%b-%-I%M%p").upper() + "-RUN"
+    now = datetime.now()
+    time_part = now.strftime("%I%M%p").lstrip("0")
+    return f"{now.day}{now.strftime('%b')}-{time_part}".upper() + "-RUN"
 
 
 async def run_full_pipeline(
@@ -127,6 +129,9 @@ async def run_full_pipeline(
 
         final_video = result.get("final_video_path")
         if not final_video:
+            phase3_error = result.get("final_video_error")
+            if phase3_error:
+                raise RuntimeError(f"Phase 3 video generation failed: {phase3_error}")
             raise RuntimeError("Phase 3 did not produce a final video.")
 
         # Store final video path for later retrieval

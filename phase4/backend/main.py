@@ -19,6 +19,7 @@ from fastapi.staticfiles import StaticFiles
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from phase3.router import router as phase3_router
+from .phase5_router import router as phase5_router
 from .schemas import RunPipelineRequest, RerunPhaseRequest
 from .sse_manager import sse_manager
 from .pipeline_runner import run_full_pipeline, rerun_phase, _run_store
@@ -39,6 +40,7 @@ app.add_middleware(
 
 # ── Mount Phase Routers ───────────────────────────────────────────────────────
 app.include_router(phase3_router, prefix="/api")
+app.include_router(phase5_router, prefix="/api")
 
 
 # ── Health ────────────────────────────────────────────────────────────────────

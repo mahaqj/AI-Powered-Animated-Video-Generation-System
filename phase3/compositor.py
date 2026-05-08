@@ -136,14 +136,14 @@ async def burn_subtitles(video_path: Path, srt_content: str, output_dir: Path) -
     output_path = output_dir / "final_output_subtitled.mp4"
     style = "FontName=Arial,FontSize=20,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BackColour=&H80000000,Bold=1,Outline=2"
     
-    # Escape path for subtitles filter
-    # On Linux, we just need to escape colons if any, but absolute paths usually don't have them
-    # However, FFmpeg often requires escaping backslashes and colons.
-    safe_srt_path = str(srt_path).replace(":", "\\:").replace("'", "'\\''")
-    
+    # Normalize path for FFmpeg subtitles filter: use forward slashes and escape colons
+    safe_srt_path = str(srt_path).replace('\\', '/').replace(":", "\\:").replace("'", "\\'")
+
+    # Build filter without extra surrounding quotes around the path (FFmpeg parses it reliably)
+    vf_filter = f"subtitles={safe_srt_path}:force_style='{style}'"
     args = [
         "-i", str(video_path),
-        "-vf", f"subtitles='{safe_srt_path}':force_style='{style}'",
+        "-vf", vf_filter,
         "-c:a", "copy",
         str(output_path), "-y"
     ]

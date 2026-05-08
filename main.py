@@ -13,7 +13,9 @@ def main():
         
     # 2. Generate timestamped run directory
     # Format: 6MAY-214AM-RUN
-    timestamp = datetime.now().strftime("%-d%b-%-I%M%p").upper()
+    now = datetime.now()
+    time_part = now.strftime("%I%M%p").lstrip("0")
+    timestamp = f"{now.day}{now.strftime('%b')}-{time_part}".upper()
     run_dir = f"outputs/{timestamp}-RUN"
     os.makedirs(run_dir, exist_ok=True)
     

@@ -1,4 +1,6 @@
-export default function VideoPreview({ videoUrl, onRegenerate }) {
+import PropTypes from 'prop-types'
+
+export default function VideoPreview({ videoUrl, previewUrl, previewVersion, previewActive, onTogglePreview, onRegenerate }) {
   const placeholder = (
     <div style={{
       width: '100%',
@@ -28,7 +30,7 @@ export default function VideoPreview({ videoUrl, onRegenerate }) {
     </div>
   )
 
-  const player = (
+  const player = (videoSrc => (
     <div style={{
       animation: 'curtain-wipe 0.8s ease forwards',
       clipPath: 'inset(0 100% 0 0)',
@@ -37,7 +39,7 @@ export default function VideoPreview({ videoUrl, onRegenerate }) {
         controls
         autoPlay
         loop
-        src={videoUrl}
+        src={videoSrc}
         style={{
           width: '100%',
           maxWidth: '900px',
@@ -49,7 +51,7 @@ export default function VideoPreview({ videoUrl, onRegenerate }) {
       />
       <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
         <a
-          href={videoUrl}
+          href={videoSrc}
           download="animai_film.mp4"
           style={{
             padding: '10px 24px',
@@ -83,9 +85,43 @@ export default function VideoPreview({ videoUrl, onRegenerate }) {
             ↺ Regenerate All
           </button>
         )}
+        {previewUrl && !previewActive && (
+          <button
+            onClick={() => onTogglePreview(true)}
+            style={{
+              padding: '10px 24px',
+              fontFamily: 'var(--font-display)',
+              fontSize: '16px',
+              background: 'var(--acid)',
+              color: 'var(--ink)',
+              borderRadius: '6px',
+              cursor: 'pointer',
+            }}
+          >
+            ▶ Show Edited Preview (v{previewVersion})
+          </button>
+        )}
+        {previewUrl && previewActive && (
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <span style={{ fontFamily: 'var(--font-ticker)', color: 'var(--acid)' }}>Previewing edit v{previewVersion}</span>
+            <button
+              onClick={() => onTogglePreview(false)}
+              style={{
+                padding: '8px 16px',
+                background: 'transparent',
+                border: '1px solid #444',
+                color: '#eee',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              Show Original
+            </button>
+          </div>
+        )}
       </div>
     </div>
-  )
+  ))
 
   return (
     <section style={{
@@ -101,7 +137,16 @@ export default function VideoPreview({ videoUrl, onRegenerate }) {
       }}>
         Your Film 🎬
       </h2>
-      {videoUrl ? player : placeholder}
+      {videoUrl ? player(previewActive && previewUrl ? previewUrl : videoUrl) : placeholder}
     </section>
   )
+}
+
+VideoPreview.propTypes = {
+  videoUrl: PropTypes.string,
+  previewUrl: PropTypes.string,
+  previewVersion: PropTypes.number,
+  previewActive: PropTypes.bool,
+  onTogglePreview: PropTypes.func,
+  onRegenerate: PropTypes.func,
 }

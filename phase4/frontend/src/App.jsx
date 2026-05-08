@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import Navbar from './components/Navbar'
 import PromptStudio from './components/PromptStudio'
 import PipelineDashboard from './components/PipelineDashboard'
@@ -21,6 +21,9 @@ export default function App() {
   const { state, startRun, rerunPhase, revert } = usePipeline(addToast)
   
   const [history, setHistory] = useState([])
+  const [previewVideoUrl, setPreviewVideoUrl] = useState(null)
+  const [previewVersion, setPreviewVersion] = useState(null)
+  const [previewActive, setPreviewActive] = useState(false)
 
   const showPipeline = state.runId !== null
   const isComplete   = state.overallStatus === 'done'
@@ -35,9 +38,13 @@ export default function App() {
     }
   }, [isComplete])
 
-  const handleRegenerate = () => {
+  useEffect(() => {
+    setPreviewVideoUrl(null)
+  }, [state.runId])
+
+  const handleRegenerate = useCallback(() => {
     if (state.prompt) startRun(state.prompt)
-  }
+  }, [state.prompt, startRun])
 
   // Memoize layout components to prevent unnecessary re-renders during SSE updates
   const dashboard = useMemo(() => (
@@ -56,11 +63,15 @@ export default function App() {
       <div className="fade-up" style={{ animationDelay: '0.2s' }}>
         <VideoPreview
           videoUrl={state.phase3.videoUrl}
+          previewUrl={previewVideoUrl}
+          previewVersion={previewVersion}
+          previewActive={previewActive}
+          onTogglePreview={(active) => setPreviewActive(active)}
           onRegenerate={isComplete ? handleRegenerate : undefined}
         />
       </div>
     )
-  ), [showPipeline, state.phase3.videoUrl, isComplete])
+  ), [showPipeline, state.phase3.videoUrl, previewVideoUrl, previewVersion, previewActive, isComplete, handleRegenerate])
 
   return (
     <div style={{ 
@@ -103,7 +114,28 @@ export default function App() {
             marginTop: '80px'
           }}>
             <div className="glass" style={{ padding: '32px', borderRadius: '24px' }}>
-              <EditPanel runId={state.runId} />
+              <EditPanel 
+                runId={state.runId} 
+                addToast={addToast}
+                onEdited={async (result) => {
+                  console.log('[App] onEdited callback triggered, fetching history...')
+                  try {
+                    if (result?.video_url) {
+                      setPreviewVideoUrl(result.video_url)
+                      setPreviewVersion(result.version)
+                      // do not auto-activate preview; user chooses to view it
+                      setPreviewActive(false)
+                    }
+                    const updatedHistory = await fetchHistory()
+                    console.log('[App] Fetched history:', updatedHistory)
+                    setHistory(updatedHistory)
+                    console.log('[App] History state updated')
+                  } catch (err) {
+                    console.error('[App] History fetch failed:', err)
+                    addToast?.(`Failed to refresh history: ${err.message}`, 'error')
+                  }
+                }} 
+              />
             </div>
             <div className="glass" style={{ padding: '32px', borderRadius: '24px' }}>
               <VersionHistory history={history} onRevert={revert} />

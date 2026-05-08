@@ -34,6 +34,13 @@ export async function fetchHistory() {
   return fetchJSON('/phase3/history')
 }
 
+export async function applyEdit(runId, editText) {
+  return fetchJSON('/phase5/edit', {
+    method: 'POST',
+    body: JSON.stringify({ run_id: runId, edit_text: editText }),
+  })
+}
+
 export async function revertVersion(version) {
   return fetchJSON(`/phase3/revert/${version}`, { method: 'POST' })
 }

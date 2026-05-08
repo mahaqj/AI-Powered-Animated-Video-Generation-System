@@ -82,7 +82,7 @@ export default function Navbar({ status = 'idle' }) {
           paddingLeft: '12px',
           letterSpacing: '1px',
         }}>
-          :8002
+          :8000
         </div>
       </div>
     </nav>

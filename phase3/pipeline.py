@@ -22,6 +22,9 @@ class Phase3Pipeline:
         """Execute the full Phase 3 pipeline with optional run_dir override."""
         base_dir = Path(run_dir) if run_dir else Path(self.settings.OUTPUT_DIR)
         
+        # Clear all previous snapshots — each run gets fresh v1, v2, ... versioning
+        await self.state_manager.clear_all()
+        
         images_dir = base_dir / "images"
         clips_dir  = base_dir / "clips"
         final_dir  = base_dir / "final"
